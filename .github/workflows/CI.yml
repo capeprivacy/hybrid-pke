@@ -1,0 +1,160 @@
+name: Main
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x86_64
+    - name: Build wheel
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release --sdist -o dist
+    - name: Install wheel
+      run: |
+        pip install hpke_spec --no-index --find-links dist --force-reinstall
+        python -c "import hpke_spec"
+    - name: Test wheel
+      run: |
+        pip install pytest
+        pytest
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
+
+  windows:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x86
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        default: true
+    - name: Build wheel
+      uses: messense/maturin-action@v1
+      with:
+        command: build
+        args: --release -o dist
+    - name: Install wheel
+      run: |
+        pip install hpke_spec --no-index --find-links dist --force-reinstall
+        python -c "import hpke_spec"
+    - name: Test wheel
+      run: |
+        pip install pytest
+        pytest
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
+
+  macos:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        default: true
+    - name: Build wheel - x86_64
+      uses: messense/maturin-action@v1
+      with:
+        command: build
+        target: x86_64
+        args: --release --out dist --sdist
+    - name: Install wheel - x86_64
+      run: |
+        pip install hpke_spec --no-index --find-links dist --force-reinstall
+        python -c "import hpke_spec"
+    - name: Test wheel
+      run: |
+        pip install pytest
+        pytest
+    - name: Build wheel - universal2
+      uses: messense/maturin-action@v1
+      with:
+        command: bulid
+        args: --release --universal2 -o dist
+    - name: Install wheel - universal2
+      run: |
+        pip install hpke_spec --no-index --find-links dist --force-reinstall
+        python -c "import hpke_spec"
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
+  
+  # update_release_draft:
+  #   permissions:
+  #     contents: write
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: release-drafter/release-drafter@v5
+  #       with:
+  #         disable-autolabeler: true
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # release:
+  #   name: Release
+  #   runs-on: ubuntu-latest
+  #   if: "startsWith(github.ref, 'refs/tags/')"
+  #   needs: [ macos, windows, linux ]
+  #   steps:
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: wheels
+  #     - run: zip -r wheelhouse.zip wheels
+  #     - name: Upload Release Asset
+  #       id: upload-release-asset 
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.update_release_draft.outputs.upload_url }}
+  #         asset_path: wheelhouse.zip
+  #         asset_name: wheelhouse.zip
+  #         asset_content_type: application/zip
+  #     # - name: Publish to PyPI
+  #     #   uses: messense/maturin-action@v1
+  #     #   env:
+  #     #     MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+  #     #   with:
+  #     #     command: upload
+  #     #     args: --skip-existing *

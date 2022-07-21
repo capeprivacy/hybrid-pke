@@ -2,26 +2,30 @@ name: Main
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   linux:
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
+        python-version: ["3.8", "3.9", "3.10"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x86_64
+    - uses: actions/setup-python@v4
+      id: py3
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:
+        target: x86_64
         manylinux: auto
         command: build
-        args: --release --sdist -o dist
+        args: --release --sdist -i python${{ matrix.python-version }} -o dist
     - name: Install wheel
       run: |
         pip install hpke_spec --no-index --find-links dist --force-reinstall
@@ -39,15 +43,16 @@ jobs:
   windows:
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
+        python-version: ["3.8", "3.9", "3.10"]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     - name: Install Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x86
+      uses: actions/setup-python@v4
+      id: py3
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x86
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -58,7 +63,8 @@ jobs:
       uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release -o dist
+        target: x86
+        args: --release -i ${{ steps.py3.outputs.python-path }} -o dist
     - name: Install wheel
       run: |
         pip install hpke_spec --no-index --find-links dist --force-reinstall
@@ -76,15 +82,16 @@ jobs:
   macos:
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
+        python-version: ["3.8", "3.9", "3.10"]
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
     - name: Install Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
+      uses: actions/setup-python@v4
+      id: py3
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -96,7 +103,7 @@ jobs:
       with:
         command: build
         target: x86_64
-        args: --release --out dist --sdist
+        args: --release -i ${{ steps.py3.outputs.python-path }} --out dist --sdist
     - name: Install wheel - x86_64
       run: |
         pip install hpke_spec --no-index --find-links dist --force-reinstall
@@ -108,7 +115,7 @@ jobs:
     - name: Build wheel - universal2
       uses: messense/maturin-action@v1
       with:
-        command: bulid
+        command: build
         args: --release --universal2 -o dist
     - name: Install wheel - universal2
       run: |
@@ -120,16 +127,16 @@ jobs:
         name: wheels
         path: dist
   
-  update_release_draft:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@v5
-        with:
-          disable-autolabeler: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # update_release_draft:
+  #   permissions:
+  #     contents: write
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: release-drafter/release-drafter@v5
+  #     with:
+  #       disable-autolabeler: true
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # release:
   #   name: Release

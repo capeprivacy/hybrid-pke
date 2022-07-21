@@ -13,9 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x86_64
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x86_64
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:
@@ -45,9 +45,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x86
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x86
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -82,9 +82,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -125,11 +125,11 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v5
-        with:
-          disable-autolabeler: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: release-drafter/release-drafter@v5
+      with:
+        disable-autolabeler: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # release:
   #   name: Release

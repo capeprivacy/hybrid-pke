@@ -15,7 +15,7 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: x86_64
+        architecture: x64
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:

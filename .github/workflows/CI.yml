@@ -139,30 +139,30 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # release:
-  #   name: Release
-  #   runs-on: ubuntu-latest
-  #   if: "startsWith(github.ref, 'refs/tags/')"
-  #   needs: [ macos, windows, linux ]
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: wheels
-  #     - run: zip -r wheelhouse.zip wheels
-  #     - name: Upload Release Asset
-  #       id: upload-release-asset 
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.update_release_draft.outputs.upload_url }}
-  #         asset_path: wheelhouse.zip
-  #         asset_name: wheelhouse.zip
-  #         asset_content_type: application/zip
-  #     # - name: Publish to PyPI
-  #     #   uses: messense/maturin-action@v1
-  #     #   env:
-  #     #     MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-  #     #   with:
-  #     #     command: upload
-  #     #     args: --skip-existing *
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    needs: [ macos, windows, linux ]
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels
+      - run: zip -r wheelhouse.zip wheels
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.update_release_draft.outputs.upload_url }}
+          asset_path: wheelhouse.zip
+          asset_name: wheelhouse.zip
+          asset_content_type: application/zip
+      # - name: Publish to PyPI
+      #   uses: messense/maturin-action@v1
+      #   env:
+      #     MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      #   with:
+      #     command: upload
+      #     args: --skip-existing *

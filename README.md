@@ -7,7 +7,7 @@ The Hybrid Public Key Encryption (HPKE) standard in Python.
 - [`py-hpke-spec`](https://github.com/capeprivacy/py-hpke-spec) = [`hpke-spec`](https://github.com/cryspen/hpke-spec) :handshake: [`PyO3`](https://github.com/PyO3/pyo3)
 
 
-This HPKE implementation is simply a thin Python wrapper around [`hpke-spec`](https://github.com/cryspen/hpke-spec), the hacspec implementation [written by Franziskus Kiefer](https://www.franziskuskiefer.de/p/tldr-hybrid-public-key-encryption/). This package aims to mirror the `hpke-spec` constructions as much as possible, to avoid any and all discrepancy from the HPKE standard.
+This HPKE implementation is simply a thin Python wrapper around [`hpke-spec`](https://github.com/cryspen/hpke-spec), the hacspec implementation [written by Franziskus Kiefer](https://www.franziskuskiefer.de/p/tldr-hybrid-public-key-encryption/). This package mirrors the `hpke-spec` constructions as much as possible, to avoid any discrepancy from the HPKE standard.
 
 ## Why `hpke-spec`?
 

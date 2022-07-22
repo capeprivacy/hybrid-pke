@@ -25,6 +25,7 @@ lint:
 .PHONY: clean
 clean:
 	cargo clean
+	find ./ -depth -type d -name '__pycache__' -prune -print -exec rm -rf {} +
 
 .PHONY: ci-ready
 ci-ready: fmt lint test

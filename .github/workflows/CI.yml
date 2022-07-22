@@ -22,7 +22,7 @@ jobs:
     - name: Lint Rust code
       run: |
         cargo fmt --all -- --check
-	      cargo clippy --all-targets -- -D warnings --no-deps
+        cargo clippy --all-targets -- -D warnings --no-deps
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:

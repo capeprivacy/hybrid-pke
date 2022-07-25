@@ -20,14 +20,18 @@ As a result, it's much more straightforward to evaluate `hpke-spec` for security
 ## Installation
 Wheels for various platforms and architectures can be found in the `wheelhouse.zip` archive from [latest Github release](https://github.com/capeprivacy/py-hpke-spec/releases).
 
+THe library can also be installed from source with [`maturin`](https://github.com/PyO3/maturin); see below.
+
 ## Development
 
-We use [`maturin`](https://github.com/PyO3/maturin) to build and distribute the PyO3 extension module as a Python wheel. 
+We use [`maturin`](https://github.com/PyO3/maturin) to build and distribute the PyO3 extension module as a Python wheel.
 
-Helpful commands:
+For users of `cmake`, we provide a [`Makefile`](https://github.com/capeprivacy/py-hpke-spec/blob/main/Makefile) that includes some helpful development commands.
+
+Other useful tips:
 - `maturin develop` builds & installs the Python package into your Python environment (`venv` or `conda` recommended)
 - `pytest .` tests the resulting Python package
-- `maturin build --release -o dist --sdist` builds the extension module in release-mode and produces a wheel for your target platform/architecture.
+- `maturin build --release -o dist --sdist` builds the extension module in release-mode and produces a wheel for your environment's OS and architecture.
 - The `-i`/`--interpreter` flag for `maturin` can be used to swap out different Python interpreters, if you have multiple Python installations.
 
 ## Related Projects

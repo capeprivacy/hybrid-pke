@@ -19,6 +19,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
+    - name: Lint Rust code
+      run: |
+        cargo fmt --all -- --check
+        cargo clippy --all-targets -- -D warnings --no-deps
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:
@@ -33,7 +37,7 @@ jobs:
     - name: Test wheel
       run: |
         pip install pytest
-        pytest
+        pytest .
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

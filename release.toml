@@ -1,0 +1,12 @@
+push = false
+tag = true
+sign-commit = true
+sign-tag = true
+pre-release-commit-message = "release {{version}} of {{crate_name}}"
+post-release-commit-message = "starting {{next_version}} of {{crate_name}}"
+pre-release-replacements = [
+    {file="pyproject.toml", search="version = \"[a-z0-9\\.-]+\"", replace="version=\"{{version}}\"", exactly=1},
+]
+post-release-replacements = [
+    {file="pyproject.toml", search="version = \"[0-9\\.]+\"", replace="version=\"{{next_version}}\"", exactly=1},
+]

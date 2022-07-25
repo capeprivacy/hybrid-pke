@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "hpke_spec"
 description = "The Hybrid Public Key Encryption (HPKE) standard in Python"
-version = "0.1.0-rc.1"  # NOTE: auto-updated during release
+version="0.1.0"  # NOTE: auto-updated during release
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Rust",

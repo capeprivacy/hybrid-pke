@@ -12,7 +12,7 @@ jobs:
   linux:
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.8", "3.9"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -156,11 +156,7 @@ jobs:
         with:
           name: wheels
       - name: Zip wheels into wheelhouse
-        run: |
-          echo $(pwd)
-          ls -lh
-          echo ${{ steps.download.outputs.download-path }}
-          zip -r wheelhouse.zip wheels
+        run: zip -r wheelhouse.zip . -i *.whl
         working-directory: ${{ steps.download.outputs.download-path }}
       - name: Upload Release Asset
         id: upload-release-asset

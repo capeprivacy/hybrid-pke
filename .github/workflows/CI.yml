@@ -19,6 +19,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
+    - name: Debug logging
+      run: |
+        echo ${{ github.ref }}
     - name: Lint Rust code
       run: |
         cargo fmt --all -- --check

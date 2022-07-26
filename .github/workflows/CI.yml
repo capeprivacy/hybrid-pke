@@ -157,6 +157,7 @@ jobs:
           name: wheels
       - name: Zip wheels into wheelhouse
         run: |
+          echo $(pwd)
           ls -lh
           echo ${{ steps.download.outputs.download-path }}
           zip -r wheelhouse.zip wheels

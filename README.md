@@ -18,9 +18,9 @@ The `hpke-spec` library has two primary advantages:
 As a result, it's much more straightforward to evaluate `hpke-spec` for security and correctness. Indeed, both hacspec and RFC 9180 have received thorough vetting from cryptographers in [Project Everest](https://project-everest.github.io) and the [Internet Research Task Force](https://datatracker.ietf.org/doc/rfc9180/), respectively.
 
 ## Installation
-Wheels for various platforms and architectures can be found in the `wheelhouse.zip` archive from [latest Github release](https://github.com/capeprivacy/py-hpke-spec/releases).
+Wheels for various platforms and architectures can be found on on [PyPI](https://pypi.org/project/hpke-spec/) or in the `wheelhouse.zip` archive from the [latest Github release](https://github.com/capeprivacy/py-hpke-spec/releases).
 
-THe library can also be installed from source with [`maturin`](https://github.com/PyO3/maturin); see below.
+The library can also be installed from source with [`maturin`](https://github.com/PyO3/maturin) -- see below.
 
 ## Development
 

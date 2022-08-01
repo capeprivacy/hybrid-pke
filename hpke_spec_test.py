@@ -21,3 +21,10 @@ class TestHpkeSpec:
         raise AssertionError(
             "hpke_seal failed to raise Exception on malformed public key"
         )
+
+    def test_hpke_roundtrip(self):
+        skR, pkR = hpke_spec.generate_hpke_keypair()
+        ptxt = b"my name is Vincent Law"
+        ctxt = hpke_spec.hpke_seal(pkR, ptxt)
+        ptxt_roundtrip = hpke_spec.hpke_open(skR, ctxt)
+        assert ptxt == ptxt_roundtrip

@@ -9,6 +9,30 @@ The Hybrid Public Key Encryption (HPKE) standard in Python.
 
 This HPKE implementation is simply a thin Python wrapper around [`hpke-spec`](https://github.com/cryspen/hpke-spec), the hacspec implementation [written by Franziskus Kiefer](https://www.franziskuskiefer.de/p/tldr-hybrid-public-key-encryption/). This package mirrors the `hpke-spec` constructions as much as possible, to avoid any discrepancy from the HPKE standard.
 
+## Features
+The modes and features available match those found in the original `hpke-spec` code. For instance, SHA256 is the only hash algorithm implemented by the hacspec example crypto libs, and as a result some KEMs and KDFs from the original HPKE RFC are unsupported.
+
+ - Modes
+   - [x] mode_base
+   - [ ] mode_psk
+   - [ ] mode_auth
+   - [ ] mode_auth_psk
+ - AEADs
+   - [x] AES-128-GCM
+   - [ ] AES-256-GCM
+   - [x] ChaCha20Poly1305
+   - [ ] Export only
+ - KEMs
+   - [x] DHKEM(P-256, HKDF-SHA256)
+   - [ ] DHKEM(P-384, HKDF-SHA384)
+   - [ ] DHKEM(P-521, HKDF-SHA512)
+   - [x] DHKEM(X25519, HKDF-SHA256)
+   - [ ] DHKEM(X448, HKDF-SHA512)
+ - KDFs
+   - [x] HKDF-SHA256
+   - [ ] HKDF-SHA384
+   - [ ] HKDF-SHA512
+
 ## Why `hpke-spec`?
 
 The `hpke-spec` library has two primary advantages:

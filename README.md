@@ -14,12 +14,12 @@ The modes and features available match those found in the original `hpke-spec` c
 
  - Modes
    - [x] mode_base
-   - [ ] mode_psk
-   - [ ] mode_auth
-   - [ ] mode_auth_psk
+   - [x] mode_psk
+   - [x] mode_auth
+   - [x] mode_auth_psk
  - AEADs
    - [x] AES-128-GCM
-   - [ ] AES-256-GCM
+   - [x] AES-256-GCM
    - [x] ChaCha20Poly1305
    - [ ] Export only
  - KEMs
@@ -30,8 +30,8 @@ The modes and features available match those found in the original `hpke-spec` c
    - [ ] DHKEM(X448, HKDF-SHA512)
  - KDFs
    - [x] HKDF-SHA256
-   - [ ] HKDF-SHA384
-   - [ ] HKDF-SHA512
+   - [x] HKDF-SHA384
+   - [x] HKDF-SHA512
 
 ## Why `hpke-spec`?
 

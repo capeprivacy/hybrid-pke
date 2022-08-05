@@ -9,7 +9,8 @@ use crate::errors::*;
 
 pub(crate) type Hpke = HpkeRs<HpkeRustCrypto>;
 
-// Hpke contains the HPKE mode and ciphersuite needed to fully-specify & configure HPKE encryption.
+/// Hpke defines the mode and ciphersuite needed to fully specify an HPKE configuration.
+/// The resulting Hpke configuration object exposes the primary HPKE protocols as instance methods.
 #[pyclass]
 #[pyo3(name = "Hpke", module = "hpke")]
 #[derive(Clone)]
@@ -41,6 +42,7 @@ impl PyHpke {
         }
     }
 
+    /// Generate a key-pair according to this Hpke config
     fn generate_key_pair<'p>(&self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
         let cfg: Hpke = self.into();
         let keypair = cfg
@@ -52,11 +54,8 @@ impl PyHpke {
         Ok((sk_py, pk_py))
     }
 
-    #[args(
-        psk = "None",
-        psk_id = "None",
-        sk_s = "None",
-    )]
+    /// Use this Hpke config for single-shot encryption
+    #[args(psk = "None", psk_id = "None", sk_s = "None")]
     fn seal<'p>(
         &self,
         py: Python<'p>,
@@ -97,11 +96,8 @@ impl PyHpke {
         Ok((encap_py, cipher_txt_py))
     }
 
-    #[args(
-        psk = "None",
-        psk_id = "None",
-        pk_s = "None"
-    )]
+    /// Use this Hpke config for single-shot decryption
+    #[args(psk = "None", psk_id = "None", pk_s = "None")]
     fn open<'p>(
         &self,
         py: Python<'p>,

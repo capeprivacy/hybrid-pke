@@ -8,7 +8,7 @@ use crate::config::*;
 use crate::errors::*;
 use crate::hpke::*;
 
-// Construct a reasonable default HPKEConfig
+/// Construct a reasonable default HPKEConfig
 #[pyfunction]
 pub(crate) fn default_config() -> PyHpke {
     let mode = PyMode::BASE;
@@ -38,7 +38,7 @@ fn build_errors_module(py: Python) -> PyResult<&PyModule> {
     Ok(errors_module)
 }
 
-/// PyO3 module for hpke-spec.
+/// PyO3 module for hpke.
 #[pymodule]
 #[pyo3(name = "hpke")]
 fn pyhpke(py: Python, m: &PyModule) -> PyResult<()> {

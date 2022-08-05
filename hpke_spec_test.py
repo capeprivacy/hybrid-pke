@@ -10,7 +10,7 @@ class TestHpkeSpec(parameterized.TestCase):
         cfg = hpke.default_config()
         info = b""
         aad = b""
-        encap, ciphertext = cfg.seal(pk, info, aad, ptxt, psk=None, psk_id=None, sk_s=None)
+        encap, ciphertext = cfg.seal(pk, info, aad, ptxt)
         # 32 bytes (KEM-derived public key) + 45 bytes (ciphertext of ptxt) = 77 bytes
         assert len(encap) == 32
         assert len(ciphertext) == 45
@@ -22,7 +22,7 @@ class TestHpkeSpec(parameterized.TestCase):
         info = b""
         aad = b""
         with self.assertRaises(hpke.errors.CryptoError):
-            _, _ = cfg.seal(pk, info, aad, ptxt, psk=None, psk_id=None, sk_s=None)
+            _, _ = cfg.seal(pk, info, aad, ptxt)
 
     def test_hpke_roundtrip(self):
         cfg = hpke.default_config()
@@ -31,8 +31,8 @@ class TestHpkeSpec(parameterized.TestCase):
         ptxt = b"my name is Vincent Law"
         info = b""
         aad = b""
-        encap, ctxt = cfg.seal(pkR, info, aad, ptxt, psk=None, psk_id=None, sk_s=None)
-        ptxt_roundtrip = cfg.open(encap, skR, info, aad, ctxt, psk=None, psk_id=None, pk_s=None)
+        encap, ctxt = cfg.seal(pkR, info, aad, ptxt)
+        ptxt_roundtrip = cfg.open(encap, skR, info, aad, ctxt)
         assert ptxt == ptxt_roundtrip
 
     @parameterized.parameters(

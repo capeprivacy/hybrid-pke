@@ -52,6 +52,11 @@ impl PyHpke {
         Ok((sk_py, pk_py))
     }
 
+    #[args(
+        psk = "None",
+        psk_id = "None",
+        sk_s = "None",
+    )]
     fn seal<'p>(
         &self,
         py: Python<'p>,
@@ -92,6 +97,11 @@ impl PyHpke {
         Ok((encap_py, cipher_txt_py))
     }
 
+    #[args(
+        psk = "None",
+        psk_id = "None",
+        pk_s = "None"
+    )]
     fn open<'p>(
         &self,
         py: Python<'p>,

@@ -40,8 +40,7 @@ fn build_errors_module(py: Python) -> PyResult<&PyModule> {
 
 /// PyO3 module for hpke.
 #[pymodule]
-#[pyo3(name = "hpke")]
-fn pyhpke(py: Python, m: &PyModule) -> PyResult<()> {
+fn hybrid_pke(py: Python, m: &PyModule) -> PyResult<()> {
     let errors_module = build_errors_module(py)?;
     m.add_submodule(errors_module)?;
     m.add_class::<PyHpke>()?;

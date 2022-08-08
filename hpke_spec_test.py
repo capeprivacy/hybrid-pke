@@ -1,95 +1,99 @@
 from absl.testing import parameterized
 
-import hpke_spec as hpke
+import hybrid_pke
 
 
 class TestHpkeSpec(parameterized.TestCase):
     def test_hpke_seal(self):
         pk = b"my fake public key is 32 bytes !"
         ptxt = b"hello, my name is Vincent Law"
-        config = hpke.default_config()
-        ciphertext = hpke.seal(pk, ptxt, config)
+        hpke = hybrid_pke.default_config()
+        info = b""
+        aad = b""
+        encap, ciphertext = hpke.seal(pk, info, aad, ptxt)
         # 32 bytes (KEM-derived public key) + 45 bytes (ciphertext of ptxt) = 77 bytes
-        assert len(ciphertext) == 77
+        assert len(encap) == 32
+        assert len(ciphertext) == 45
 
     def test_wrong_pk_size(self):
-        try:
-            pk = b"my fake public key is greater than 32 bytes !"
-            ptxt = b"hello, my name is Vincent Law"
-            config = hpke.default_config()
-            _ = hpke.seal(pk, ptxt, config)
-        except:  # noqa: E722
-            # the exception type is pyo3_runtime.PanicException,
-            # which isn't accessible from Python.
-            return
-        raise AssertionError(
-            "hpke_seal failed to raise Exception on malformed public key"
-        )
+        pk = b"my fake public key is greater than 32 bytes !"
+        ptxt = b"hello, my name is Vincent Law"
+        hpke = hybrid_pke.default_config()
+        info = b""
+        aad = b""
+        with self.assertRaises(hybrid_pke.errors.CryptoError):
+            _, _ = hpke.seal(pk, info, aad, ptxt)
 
-    def test_hpke_roundtrip(self):
-        config = hpke.default_config()
-        skR, pkR = hpke.generate_keypair(kem=config.kem)
+    def test_hpke_onetrip(self):
+        hpke = hybrid_pke.default_config()
+        skR, pkR = hpke.generate_key_pair()
         ptxt = b"my name is Vincent Law"
-        ctxt = hpke.seal(pkR, ptxt, config)
-        ptxt_roundtrip = hpke.open(skR, ctxt, config)
+        info = b""
+        aad = b""
+        encap, ctxt = hpke.seal(pkR, info, aad, ptxt)
+        ptxt_roundtrip = hpke.open(encap, skR, info, aad, ctxt)
         assert ptxt == ptxt_roundtrip
 
     @parameterized.parameters(
-        hpke.KEM.DHKEM_P384_HKDF_SHA384,
-        hpke.KEM.DHKEM_P521_HKDF_SHA512,
-        hpke.KEM.DHKEM_X448_HKDF_SHA512,
+        hybrid_pke.Kem.DHKEM_P384,
+        hybrid_pke.Kem.DHKEM_P521,
+        hybrid_pke.Kem.DHKEM_X448,
     )
     def test_unsupported_keygen(self, kem):
-        with self.assertRaises(RuntimeError):
-            _, _ = hpke.generate_keypair(kem)
+        hpke = hybrid_pke.default_config()
+        hpke.kem = kem
+        with self.assertRaises(hybrid_pke.errors.CryptoError):
+            _, _ = hpke.generate_key_pair()
 
     @parameterized.parameters(
-        (hpke.KEM.DHKEM_P256_HKDF_SHA256, 32, 65),
-        (hpke.KEM.DHKEM_X25519_HKDF_SHA256, 32, 32),
+        (hybrid_pke.Kem.DHKEM_P256, 32, 65),
+        (hybrid_pke.Kem.DHKEM_X25519, 32, 32),
     )
     def test_supported_keygen(self, kem, sk_len, pk_len):
-        sk, pk = hpke.generate_keypair(kem)
+        hpke = hybrid_pke.default_config()
+        hpke.kem = kem
+        sk, pk = hpke.generate_key_pair()
         assert len(sk) == sk_len
         assert len(pk) == pk_len
 
 
 class TestHpkeConfig(parameterized.TestCase):
     def test_default_config(self):
-        config = hpke.default_config()
-        assert config.mode == hpke.Mode.mode_base
-        assert config.kem == hpke.KEM.DHKEM_X25519_HKDF_SHA256
-        assert config.kdf == hpke.KDF.HKDF_SHA256
-        assert config.aead == hpke.AEAD.ChaCha20Poly1305
+        hpke = hybrid_pke.default_config()
+        assert hpke.mode == hybrid_pke.Mode.BASE
+        assert hpke.kem == hybrid_pke.Kem.DHKEM_X25519
+        assert hpke.kdf == hybrid_pke.Kdf.HKDF_SHA256
+        assert hpke.aead == hybrid_pke.Aead.CHACHA20_POLY1305
 
     def test_config_construct(self):
-        mode = hpke.Mode.mode_base
-        kem = hpke.KEM.DHKEM_X25519_HKDF_SHA256
-        kdf = hpke.KDF.HKDF_SHA256
-        aead = hpke.AEAD.ChaCha20Poly1305
-        config = hpke.HPKEConfig(mode, kem, kdf, aead)
-        assert config.mode == mode
-        assert config.kem == kem
-        assert config.kdf == kdf
-        assert config.aead == aead
+        mode = hybrid_pke.Mode.BASE
+        kem = hybrid_pke.Kem.DHKEM_X25519
+        kdf = hybrid_pke.Kdf.HKDF_SHA256
+        aead = hybrid_pke.Aead.CHACHA20_POLY1305
+        hpke = hybrid_pke.Hpke(mode, kem, kdf, aead)
+        assert hpke.mode == mode
+        assert hpke.kem == kem
+        assert hpke.kdf == kdf
+        assert hpke.aead == aead
 
     @parameterized.parameters(
         {"enum_type": ty, "variants": vrs}
         for ty, vrs in [
-            (hpke.Mode, ["mode_base", "mode_psk", "mode_auth", "mode_auth_psk"]),
+            (hybrid_pke.Mode, ["BASE", "PSK", "AUTH", "AUTH_PSK"]),
             (
-                hpke.KEM,
+                hybrid_pke.Kem,
                 [
-                    "DHKEM_P256_HKDF_SHA256",
-                    "DHKEM_P384_HKDF_SHA384",
-                    "DHKEM_P521_HKDF_SHA512",
-                    "DHKEM_X25519_HKDF_SHA256",
-                    "DHKEM_X448_HKDF_SHA512",
+                    "DHKEM_P256",
+                    "DHKEM_P384",
+                    "DHKEM_P521",
+                    "DHKEM_X25519",
+                    "DHKEM_X448",
                 ],
             ),
-            (hpke.KDF, ["HKDF_SHA256", "HKDF_SHA384", "HKDF_SHA512"]),
+            (hybrid_pke.Kdf, ["HKDF_SHA256", "HKDF_SHA384", "HKDF_SHA512"]),
             (
-                hpke.AEAD,
-                ["AES_128_GCM", "AES_256_GCM", "ChaCha20Poly1305", "Export_only"],
+                hybrid_pke.Aead,
+                ["AES_128_GCM", "AES_256_GCM", "CHACHA20_POLY1305", "HPKE_EXPORT"],
             ),
         ]
     )

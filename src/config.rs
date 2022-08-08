@@ -1,148 +1,91 @@
-use hpke::{HPKEConfig, Mode};
-use hpke_aead::AEAD;
-use hpke_kdf::KDF;
-use hpke_kem::KEM;
+use hpke_rs::Mode;
+use hpke_rs_crypto::types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm};
 use pyo3::prelude::*;
-use std::convert::Into;
-
-// Construct a reasonable default HPKEConfig
-#[pyfunction]
-pub(crate) fn default_config() -> PyHPKEConfig {
-    let mode = PyMode::mode_base;
-    let kem = PyKEM::DHKEM_X25519_HKDF_SHA256;
-    let kdf = PyKDF::HKDF_SHA256;
-    let aead = PyAEAD::ChaCha20Poly1305;
-    PyHPKEConfig {
-        mode,
-        kem,
-        kdf,
-        aead,
-    }
-}
-
-// HPKEConfig contains the HPKE mode and ciphersuite needed to fully-specify & configure HPKE encryption.
-#[pyclass]
-#[pyo3(name = "HPKEConfig", module = "hpke_spec")]
-#[derive(Clone)]
-pub(crate) struct PyHPKEConfig {
-    #[pyo3(get, set)]
-    mode: PyMode,
-    #[pyo3(get, set)]
-    kem: PyKEM,
-    #[pyo3(get, set)]
-    kdf: PyKDF,
-    #[pyo3(get, set)]
-    aead: PyAEAD,
-}
-
-#[pymethods]
-impl PyHPKEConfig {
-    #[new]
-    fn new(mode: PyMode, kem: PyKEM, kdf: PyKDF, aead: PyAEAD) -> Self {
-        PyHPKEConfig {
-            mode,
-            kem,
-            kdf,
-            aead,
-        }
-    }
-}
-
-impl From<PyHPKEConfig> for HPKEConfig {
-    fn from(pyconfig: PyHPKEConfig) -> Self {
-        HPKEConfig(
-            pyconfig.mode.into(),
-            pyconfig.kem.into(),
-            pyconfig.kdf.into(),
-            pyconfig.aead.into(),
-        )
-    }
-}
 
 #[pyclass]
-#[pyo3(name = "Mode", module = "hpke_spec")]
+#[pyo3(name = "Mode", module = "hybrid_pke")]
 #[derive(Clone)]
-#[allow(non_camel_case_types)]
+#[allow(clippy::upper_case_acronyms, non_camel_case_types)]
 pub(crate) enum PyMode {
-    mode_base,
-    mode_psk,
-    mode_auth,
-    mode_auth_psk,
+    BASE,
+    PSK,
+    AUTH,
+    AUTH_PSK,
 }
 
-impl From<PyMode> for Mode {
-    fn from(pymode: PyMode) -> Self {
+impl From<&PyMode> for Mode {
+    fn from(pymode: &PyMode) -> Self {
         match pymode {
-            PyMode::mode_base => Mode::mode_base,
-            PyMode::mode_psk => Mode::mode_psk,
-            PyMode::mode_auth => Mode::mode_auth,
-            PyMode::mode_auth_psk => Mode::mode_auth_psk,
+            PyMode::BASE => Mode::Base,
+            PyMode::PSK => Mode::Psk,
+            PyMode::AUTH => Mode::Auth,
+            PyMode::AUTH_PSK => Mode::AuthPsk,
         }
     }
 }
 
 #[pyclass]
-#[pyo3(name = "KEM", module = "hpke_spec")]
+#[pyo3(name = "Kem", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
-pub(crate) enum PyKEM {
-    DHKEM_P256_HKDF_SHA256,
-    DHKEM_P384_HKDF_SHA384,
-    DHKEM_P521_HKDF_SHA512,
-    DHKEM_X25519_HKDF_SHA256,
-    DHKEM_X448_HKDF_SHA512,
+pub(crate) enum PyKemAlgorithm {
+    DHKEM_P256,
+    DHKEM_P384,
+    DHKEM_P521,
+    DHKEM_X25519,
+    DHKEM_X448,
 }
 
-impl From<PyKEM> for KEM {
-    fn from(pykem: PyKEM) -> Self {
+impl From<&PyKemAlgorithm> for KemAlgorithm {
+    fn from(pykem: &PyKemAlgorithm) -> Self {
         match pykem {
-            PyKEM::DHKEM_P256_HKDF_SHA256 => KEM::DHKEM_P256_HKDF_SHA256,
-            PyKEM::DHKEM_P384_HKDF_SHA384 => KEM::DHKEM_P384_HKDF_SHA384,
-            PyKEM::DHKEM_P521_HKDF_SHA512 => KEM::DHKEM_P521_HKDF_SHA512,
-            PyKEM::DHKEM_X25519_HKDF_SHA256 => KEM::DHKEM_X25519_HKDF_SHA256,
-            PyKEM::DHKEM_X448_HKDF_SHA512 => KEM::DHKEM_X448_HKDF_SHA512,
+            PyKemAlgorithm::DHKEM_P256 => KemAlgorithm::DhKemP256,
+            PyKemAlgorithm::DHKEM_P384 => KemAlgorithm::DhKemP384,
+            PyKemAlgorithm::DHKEM_P521 => KemAlgorithm::DhKemP521,
+            PyKemAlgorithm::DHKEM_X25519 => KemAlgorithm::DhKem25519,
+            PyKemAlgorithm::DHKEM_X448 => KemAlgorithm::DhKem448,
         }
     }
 }
 
 #[pyclass]
-#[pyo3(name = "KDF", module = "hpke_spec")]
+#[pyo3(name = "Kdf", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
-pub(crate) enum PyKDF {
+pub(crate) enum PyKdfAlgorithm {
     HKDF_SHA256,
     HKDF_SHA384,
     HKDF_SHA512,
 }
 
-impl From<PyKDF> for KDF {
-    fn from(pykdf: PyKDF) -> Self {
+impl From<&PyKdfAlgorithm> for KdfAlgorithm {
+    fn from(pykdf: &PyKdfAlgorithm) -> Self {
         match pykdf {
-            PyKDF::HKDF_SHA256 => KDF::HKDF_SHA256,
-            PyKDF::HKDF_SHA384 => KDF::HKDF_SHA384,
-            PyKDF::HKDF_SHA512 => KDF::HKDF_SHA512,
+            PyKdfAlgorithm::HKDF_SHA256 => KdfAlgorithm::HkdfSha256,
+            PyKdfAlgorithm::HKDF_SHA384 => KdfAlgorithm::HkdfSha384,
+            PyKdfAlgorithm::HKDF_SHA512 => KdfAlgorithm::HkdfSha512,
         }
     }
 }
 
 #[pyclass]
-#[pyo3(name = "AEAD", module = "hpke_spec")]
+#[pyo3(name = "Aead", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
-pub(crate) enum PyAEAD {
+pub(crate) enum PyAeadAlgorithm {
     AES_128_GCM,
     AES_256_GCM,
-    ChaCha20Poly1305,
-    Export_only,
+    CHACHA20_POLY1305,
+    HPKE_EXPORT,
 }
 
-impl From<PyAEAD> for AEAD {
-    fn from(pyaead: PyAEAD) -> Self {
+impl From<&PyAeadAlgorithm> for AeadAlgorithm {
+    fn from(pyaead: &PyAeadAlgorithm) -> Self {
         match pyaead {
-            PyAEAD::AES_128_GCM => AEAD::AES_128_GCM,
-            PyAEAD::AES_256_GCM => AEAD::AES_256_GCM,
-            PyAEAD::ChaCha20Poly1305 => AEAD::ChaCha20Poly1305,
-            PyAEAD::Export_only => AEAD::Export_only,
+            PyAeadAlgorithm::AES_128_GCM => AeadAlgorithm::Aes128Gcm,
+            PyAeadAlgorithm::AES_256_GCM => AeadAlgorithm::Aes256Gcm,
+            PyAeadAlgorithm::CHACHA20_POLY1305 => AeadAlgorithm::ChaCha20Poly1305,
+            PyAeadAlgorithm::HPKE_EXPORT => AeadAlgorithm::HpkeExport,
         }
     }
 }

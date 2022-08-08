@@ -3,7 +3,7 @@ requires = ["maturin>=0.13,<0.14"]
 build-backend = "maturin"
 
 [project]
-name = "hpke_spec"
+name = "hybrid_pke"
 description = "The Hybrid Public Key Encryption (HPKE) standard in Python"
 version = "0.2.1-dev0"  # NOTE: auto-updated during release
 requires-python = ">=3.8"

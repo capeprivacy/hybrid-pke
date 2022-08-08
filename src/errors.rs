@@ -65,6 +65,7 @@ create_exception!(
     "A concurrency issue with an RwLock."
 );
 
+#[inline(always)]
 pub(crate) fn handle_hpke_error(e: HpkeError) -> PyErr {
     match e {
         HpkeError::OpenError => OpenError::new_err("Error opening an HPKE ciphertext."),

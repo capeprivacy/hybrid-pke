@@ -1,6 +1,6 @@
 .PHONY: pydep
 pydep:
-	pip install maturin~=0.13.0 pytest
+	pip install maturin~=0.13.0 pytest absl-py
 
 .PHONY: pylib
 pylib:

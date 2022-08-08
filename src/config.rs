@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 #[pyclass]
 #[pyo3(name = "Mode", module = "hpke")]
 #[derive(Clone)]
-#[allow(non_camel_case_types)]
+#[allow(clippy::upper_case_acronyms, non_camel_case_types)]
 pub(crate) enum PyMode {
     BASE,
     PSK,

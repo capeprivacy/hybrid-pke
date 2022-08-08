@@ -45,9 +45,7 @@ impl PyHpke {
     /// Generate a key-pair according to this Hpke config
     fn generate_key_pair<'p>(&self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
         let cfg: Hpke = self.into();
-        let keypair = cfg
-            .generate_key_pair()
-            .map_err(|hpke_error| handle_hpke_error(hpke_error))?;
+        let keypair = cfg.generate_key_pair().map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();
         let sk_py = PyBytes::new(py, sk.as_slice());
         let pk_py = PyBytes::new(py, pk.as_slice());
@@ -55,6 +53,7 @@ impl PyHpke {
     }
 
     /// Use this Hpke config for single-shot encryption
+    #[allow(clippy::too_many_arguments)]
     #[args(psk = "None", psk_id = "None", sk_s = "None")]
     fn seal<'p>(
         &self,
@@ -74,8 +73,8 @@ impl PyHpke {
         let info = info.as_bytes();
         let aad = aad.as_bytes();
         let plain_txt = plain_txt.as_bytes();
-        let psk = psk.and_then(|x| Some(x.as_bytes()));
-        let psk_id = psk_id.and_then(|x| Some(x.as_bytes()));
+        let psk = psk.map(|x| x.as_bytes());
+        let psk_id = psk_id.map(|x| x.as_bytes());
 
         // perform single-shot seal
         let (encap, cipher_txt) = match sk_s {
@@ -88,7 +87,7 @@ impl PyHpke {
                 cfg.seal(&pk_r, info, aad, plain_txt, psk, psk_id, Some(&sk))
             }
         }
-        .map_err(|hpke_error| handle_hpke_error(hpke_error))?;
+        .map_err(handle_hpke_error)?;
 
         // convert return vals back to PyBytes
         let encap_py = PyBytes::new(py, encap.as_slice());
@@ -97,6 +96,7 @@ impl PyHpke {
     }
 
     /// Use this Hpke config for single-shot decryption
+    #[allow(clippy::too_many_arguments)]
     #[args(psk = "None", psk_id = "None", pk_s = "None")]
     fn open<'p>(
         &self,
@@ -118,8 +118,8 @@ impl PyHpke {
         let info = info.as_bytes();
         let aad = aad.as_bytes();
         let cipher_txt = cipher_txt.as_bytes();
-        let psk = psk.and_then(|x| Some(x.as_bytes()));
-        let psk_id = psk_id.and_then(|x| Some(x.as_bytes()));
+        let psk = psk.map(|x| x.as_bytes());
+        let psk_id = psk_id.map(|x| x.as_bytes());
 
         // perform single-shot open
         let plain_txt = match pk_s {
@@ -130,7 +130,7 @@ impl PyHpke {
                 cfg.open(enc, &sk_r, info, aad, cipher_txt, psk, psk_id, Some(&pk))
             }
         }
-        .map_err(|hpke_error| handle_hpke_error(hpke_error))?;
+        .map_err(handle_hpke_error)?;
 
         // convert return val back to PyBytes
         let plain_txt_py = PyBytes::new(py, plain_txt.as_slice());

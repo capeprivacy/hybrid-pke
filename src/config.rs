@@ -3,7 +3,7 @@ use hpke_rs_crypto::types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm};
 use pyo3::prelude::*;
 
 #[pyclass]
-#[pyo3(name = "Mode", module = "hpke")]
+#[pyo3(name = "Mode", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(clippy::upper_case_acronyms, non_camel_case_types)]
 pub(crate) enum PyMode {
@@ -25,7 +25,7 @@ impl From<&PyMode> for Mode {
 }
 
 #[pyclass]
-#[pyo3(name = "Kem", module = "hpke")]
+#[pyo3(name = "Kem", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
 pub(crate) enum PyKemAlgorithm {
@@ -49,7 +49,7 @@ impl From<&PyKemAlgorithm> for KemAlgorithm {
 }
 
 #[pyclass]
-#[pyo3(name = "Kdf", module = "hpke")]
+#[pyo3(name = "Kdf", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
 pub(crate) enum PyKdfAlgorithm {
@@ -69,7 +69,7 @@ impl From<&PyKdfAlgorithm> for KdfAlgorithm {
 }
 
 #[pyclass]
-#[pyo3(name = "Aead", module = "hpke")]
+#[pyo3(name = "Aead", module = "hybrid_pke")]
 #[derive(Clone)]
 #[allow(non_camel_case_types)]
 pub(crate) enum PyAeadAlgorithm {

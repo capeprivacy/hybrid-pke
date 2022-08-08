@@ -12,7 +12,7 @@ pub(crate) type Hpke = HpkeRs<HpkeRustCrypto>;
 /// Hpke defines the mode and ciphersuite needed to fully specify an HPKE configuration.
 /// The resulting Hpke configuration object exposes the primary HPKE protocols as instance methods.
 #[pyclass]
-#[pyo3(name = "Hpke", module = "hpke")]
+#[pyo3(name = "Hpke", module = "hybrid_pke")]
 #[derive(Clone)]
 pub(crate) struct PyHpke {
     #[pyo3(get, set)]

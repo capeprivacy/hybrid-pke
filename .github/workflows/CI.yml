@@ -34,8 +34,8 @@ jobs:
         args: --release --sdist -i python${{ matrix.python-version }} -o dist
     - name: Install wheel
       run: |
-        pip install hpke_spec --no-index --find-links dist --force-reinstall
-        python -c "import hpke_spec"
+        pip install hybrid_pke --no-index --find-links dist --force-reinstall
+        python -c "import hybrid_pke"
     - name: Test wheel
       run: |
         pip install pytest absl-py
@@ -73,8 +73,8 @@ jobs:
         args: --release -i ${{ steps.py3.outputs.python-path }} -o dist
     - name: Install wheel
       run: |
-        pip install hpke_spec --no-index --find-links dist --force-reinstall
-        python -c "import hpke_spec"
+        pip install hybrid_pke --no-index --find-links dist --force-reinstall
+        python -c "import hybrid_pke"
     - name: Test wheel
       run: |
         pip install pytest absl-py
@@ -112,8 +112,8 @@ jobs:
         args: --release -i ${{ steps.py3.outputs.python-path }} --out dist --sdist
     - name: Install wheel - x86_64
       run: |
-        pip install hpke_spec --no-index --find-links dist --force-reinstall
-        python -c "import hpke_spec"
+        pip install hybrid_pke --no-index --find-links dist --force-reinstall
+        python -c "import hybrid_pke"
     - name: Test wheel
       run: |
         pip install pytest absl-py
@@ -125,8 +125,8 @@ jobs:
         args: --release --universal2 -o dist
     - name: Install wheel - universal2
       run: |
-        pip install hpke_spec --no-index --find-links dist --force-reinstall
-        python -c "import hpke_spec"
+        pip install hybrid_pke --no-index --find-links dist --force-reinstall
+        python -c "import hybrid_pke"
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

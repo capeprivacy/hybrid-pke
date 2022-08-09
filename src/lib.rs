@@ -2,9 +2,11 @@ use pyo3::prelude::*;
 // use rand::{rngs::OsRng, RngCore};
 
 mod config;
+mod context;
 mod errors;
 mod hpke;
 use crate::config::*;
+use crate::context::PyContext;
 use crate::errors::*;
 use crate::hpke::*;
 
@@ -44,6 +46,7 @@ fn hybrid_pke(py: Python, m: &PyModule) -> PyResult<()> {
     let errors_module = build_errors_module(py)?;
     m.add_submodule(errors_module)?;
     m.add_class::<PyHpke>()?;
+    m.add_class::<PyContext>()?;
     m.add_class::<PyMode>()?;
     m.add_class::<PyKemAlgorithm>()?;
     m.add_class::<PyKdfAlgorithm>()?;

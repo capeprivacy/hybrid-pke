@@ -31,8 +31,8 @@ class TestHpke(parameterized.TestCase):
         info = b""
         aad = b""
         encap, ctxt = hpke.seal(pkR, info, aad, ptxt)
-        ptxt_roundtrip = hpke.open(encap, skR, info, aad, ctxt)
-        assert ptxt == ptxt_roundtrip
+        ptxt_onetrip = hpke.open(encap, skR, info, aad, ctxt)
+        assert ptxt == ptxt_onetrip
 
     @parameterized.parameters(
         hybrid_pke.Kem.DHKEM_P384,

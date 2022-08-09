@@ -1,4 +1,4 @@
-py-hpke-spec
+hybrid-pke
 ===============
 The Hybrid Public Key Encryption (HPKE) standard in Python.
 

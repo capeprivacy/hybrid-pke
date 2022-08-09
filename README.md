@@ -18,7 +18,7 @@ The modes and features available match those supported by `hpke-rs`.
    - [x] AES-128-GCM
    - [x] AES-256-GCM
    - [x] ChaCha20Poly1305
-   - [ ] Export only
+   - [x] Export only
  - KEMs
    - [x] DHKEM(P-256, HKDF-SHA256)
    - [ ] DHKEM(P-384, HKDF-SHA384)
@@ -32,7 +32,7 @@ The modes and features available match those supported by `hpke-rs`.
 
 
 ## Installation
-Wheels for various platforms and architectures can be found on [PyPI](https://pypi.org/project/hpke-spec/) or in the `wheelhouse.zip` archive from the [latest Github release](https://github.com/capeprivacy/py-hpke-spec/releases).
+Wheels for various platforms and architectures can be found on [PyPI](https://pypi.org/project/hybrid-pke/) or in the `wheelhouse.zip` archive from the [latest Github release](https://github.com/capeprivacy/hybrid-pke/releases).
 
 The library can also be installed from source with [`maturin`](https://github.com/PyO3/maturin) -- see below.
 
@@ -40,7 +40,7 @@ The library can also be installed from source with [`maturin`](https://github.co
 
 We use [`maturin`](https://github.com/PyO3/maturin) to build and distribute the PyO3 extension module as a Python wheel.
 
-For users of `cmake`, we provide a [`Makefile`](https://github.com/capeprivacy/py-hpke-spec/blob/main/Makefile) that includes some helpful development commands.
+For users of `cmake`, we provide a [`Makefile`](https://github.com/capeprivacy/hybrid-pke/blob/main/Makefile) that includes some helpful development commands.
 
 Other useful tips:
 - `maturin develop` builds & installs the Python package into your Python environment (`venv` or `conda` recommended)

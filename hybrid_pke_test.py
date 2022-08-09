@@ -3,7 +3,7 @@ from absl.testing import parameterized
 import hybrid_pke
 
 
-class TestHpkeSpec(parameterized.TestCase):
+class TestHpke(parameterized.TestCase):
     def test_hpke_seal(self):
         pk = b"my fake public key is 32 bytes !"
         ptxt = b"hello, my name is Vincent Law"

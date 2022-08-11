@@ -1,13 +1,12 @@
-from absl.testing import parameterized
-
 import hybrid_pke
+from absl.testing import parameterized
 
 
 class TestHpke(parameterized.TestCase):
     def test_hpke_seal(self):
         pk = b"my fake public key is 32 bytes !"
         ptxt = b"hello, my name is Vincent Law"
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         info = b""
         aad = b""
         encap, ciphertext = hpke.seal(pk, info, aad, ptxt)
@@ -18,14 +17,14 @@ class TestHpke(parameterized.TestCase):
     def test_wrong_pk_size(self):
         pk = b"my fake public key is greater than 32 bytes !"
         ptxt = b"hello, my name is Vincent Law"
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         info = b""
         aad = b""
         with self.assertRaises(hybrid_pke.errors.CryptoError):
             _, _ = hpke.seal(pk, info, aad, ptxt)
 
     def test_hpke_onetrip(self):
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         skR, pkR = hpke.generate_key_pair()
         ptxt = b"my name is Vincent Law"
         info = b""
@@ -40,8 +39,7 @@ class TestHpke(parameterized.TestCase):
         hybrid_pke.Kem.DHKEM_X448,
     )
     def test_unsupported_keygen(self, kem):
-        hpke = hybrid_pke.default_config()
-        hpke.kem = kem
+        hpke = hybrid_pke.default(kem=kem)
         with self.assertRaises(hybrid_pke.errors.CryptoError):
             _, _ = hpke.generate_key_pair()
 
@@ -50,8 +48,7 @@ class TestHpke(parameterized.TestCase):
         (hybrid_pke.Kem.DHKEM_X25519, 32, 32),
     )
     def test_supported_keygen(self, kem, sk_len, pk_len):
-        hpke = hybrid_pke.default_config()
-        hpke.kem = kem
+        hpke = hybrid_pke.default(kem=kem)
         sk, pk = hpke.generate_key_pair()
         assert len(sk) == sk_len
         assert len(pk) == pk_len
@@ -59,7 +56,7 @@ class TestHpke(parameterized.TestCase):
     def test_exporter_secret(self):
         exporter_context = b"mock exporter context"
         exporter_secret_length = 64
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         skR, pkR = hpke.generate_key_pair()
         info = b""
         encap, sender_exporter = hpke.send_export(
@@ -73,7 +70,7 @@ class TestHpke(parameterized.TestCase):
     def test_key_schedule(self):
         exporter_context = b"mock exporter context"
         exporter_secret_length = 64
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         _, pkR = hpke.generate_key_pair()
         info = b""
         _, shared_secret = hpke.send_export(
@@ -95,7 +92,7 @@ class TestHpke(parameterized.TestCase):
     def test_key_schedule_args_raise(self, psk, psk_id):
         exporter_context = b"mock exporter context"
         exporter_secret_length = 64
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         _, pkR = hpke.generate_key_pair()
         info = b""
         _, shared_secret = hpke.send_export(
@@ -109,7 +106,7 @@ class TestHpke(parameterized.TestCase):
 class TestContext(parameterized.TestCase):
     def test_repeat_onetrip(self):
         ptxt = b"my name is Vincent Law"
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         skR, pkR = hpke.generate_key_pair()
         info = b""
         aad = b""
@@ -123,7 +120,7 @@ class TestContext(parameterized.TestCase):
     def test_exporter(self):
         exporter_context = b"mock exporter context"
         exporter_secret_length = 64
-        hpke = hybrid_pke.default_config()
+        hpke = hybrid_pke.default()
         skR, pkR = hpke.generate_key_pair()
         info = b""
         encap, sender_context = hpke.setup_sender(pkR, info)
@@ -138,8 +135,8 @@ class TestContext(parameterized.TestCase):
 
 
 class TestHpkeConfig(parameterized.TestCase):
-    def test_default_config(self):
-        hpke = hybrid_pke.default_config()
+    def test_default(self):
+        hpke = hybrid_pke.default()
         assert hpke.mode == hybrid_pke.Mode.BASE
         assert hpke.kem == hybrid_pke.Kem.DHKEM_X25519
         assert hpke.kdf == hybrid_pke.Kdf.HKDF_SHA256

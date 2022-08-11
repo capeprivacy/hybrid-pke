@@ -1,6 +1,6 @@
 .PHONY: pydep
 pydep:
-	pip install requirements-dev.txt
+	pip install -r requirements-dev.txt
 
 .PHONY: pydep-upgrade
 pydep-upgrade:

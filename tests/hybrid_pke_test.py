@@ -80,13 +80,30 @@ class TestHpke(parameterized.TestCase):
             pkR, info, exporter_context, exporter_secret_length
         )
 
-        psk = b""
-        psk_id = b""
-        context = hpke.key_schedule(shared_secret, info, psk, psk_id)
+        context = hpke.key_schedule(shared_secret, info, psk=None, psk_id=None)
 
         aad = b""
         ptxt = b"my name is Vincent Law"
         _ = context.seal(aad, ptxt)
+
+    @parameterized.parameters(
+        (None, bytes.fromhex("1541a60d09ebc96c")),
+        (bytes.fromhex("1541a60d09ebc96c"), None),
+        (b"", None),
+        (None, b""),
+    )
+    def test_key_schedule_args_raise(self, psk, psk_id):
+        exporter_context = b"mock exporter context"
+        exporter_secret_length = 64
+        hpke = hybrid_pke.default_config()
+        _, pkR = hpke.generate_key_pair()
+        info = b""
+        _, shared_secret = hpke.send_export(
+            pkR, info, exporter_context, exporter_secret_length
+        )
+
+        with self.assertRaises(ValueError):
+            _ = hpke.key_schedule(shared_secret, info, psk=psk, psk_id=psk_id)
 
 
 class TestContext(parameterized.TestCase):

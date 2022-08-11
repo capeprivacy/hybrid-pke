@@ -1,6 +1,7 @@
 use hpke_rs::HpkePrivateKey;
 use hpke_rs::{Hpke as HpkeRs, HpkePublicKey};
 use hpke_rs_rust_crypto::HpkeRustCrypto;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
@@ -297,18 +298,31 @@ impl PyHpke {
     }
 
     /// Create an encryption context from a shared secret
+    #[args(psk = "None", psk_id = "None")]
     fn key_schedule(
         &self,
         shared_secret: &PyBytes,
         info: &PyBytes,
-        psk: &PyBytes,
-        psk_id: &PyBytes,
+        psk: Option<&PyBytes>,
+        psk_id: Option<&PyBytes>,
     ) -> PyResult<PyContext> {
+        let no_psk = psk.is_none() & psk_id.is_none();
+        let both_psk = psk.is_some() & psk_id.is_some();
+        if !(no_psk | both_psk) {
+            return Err(PyValueError::new_err(
+                format!(
+                    "`psk` and `psk_id` must appear together or not at all. Found: psk={psk:?} and psk_id={psk_id:?}.",
+                    psk=psk,
+                    psk_id=psk_id,
+                )
+            ));
+        }
+
         let cfg: Hpke = self.into();
         let shared_secret = shared_secret.as_bytes();
         let info = info.as_bytes();
-        let psk = psk.as_bytes();
-        let psk_id = psk_id.as_bytes();
+        let psk: &[u8] = psk.map_or(&[], |x| x.as_bytes());
+        let psk_id: &[u8] = psk_id.map_or(&[], |x| x.as_bytes());
         let context = cfg
             .key_schedule(shared_secret, info, psk, psk_id)
             .map_err(handle_hpke_error)?;

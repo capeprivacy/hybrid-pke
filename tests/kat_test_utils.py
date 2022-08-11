@@ -70,7 +70,7 @@ class Setup:
         kwargs["kdf"] = INT_TO_KDF[int(json_dict.pop("kdf_id"))]
         kwargs["aead"] = INT_TO_AEAD[int(json_dict.pop("aead_id"))]
         json_dict = {k: bytes.fromhex(v) for k, v in json_dict.items()}
-        kwargs = kwargs | json_dict
+        kwargs.update(json_dict)
         # set optional kwargs to None if missing
         for k in ["ikmS", "skSm", "psk", "psk_id", "pkSm"]:
             kwargs[k] = kwargs.get(k, None)

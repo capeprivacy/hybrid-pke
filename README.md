@@ -92,7 +92,7 @@ Auth mode allows for signing and verifying encryptions with a previously authent
 ```python
 hpke = hybrid_pke.default(mode=hybrid_pke.Mode.AUTH)
 secret_key_r, public_key_r = hpke.generate_key_pair()  # receiver keys
-secret_key_r, public_key_r = hpke.generate_key_pair()  # sender keys, pre-authenticated
+secret_key_s, public_key_s = hpke.generate_key_pair()  # sender keys, pre-authenticated
 
 # ============== Sender ==============
 
@@ -133,7 +133,7 @@ PSK mode allows for signing and verifying encryptions with a previously shared k
 ```python
 hpke = hybrid_pke.default(mode=hybrid_pke.Mode.PSK)
 secret_key_r, public_key_r = hpke.generate_key_pair()  # receiver keys
-secret_key_r, public_key_r = hpke.generate_key_pair()  # sender keys, pre-authenticated
+secret_key_s, public_key_s = hpke.generate_key_pair()  # sender keys, pre-authenticated
 # pre-shared key + ID
 psk = bytes.fromhex("0247fd33b913760fa1fa51e1892d9f307fbe65eb171e8132c2af18555a738b82")
 psk_id = bytes.fromhex("456e6e796e20447572696e206172616e204d6f726961")

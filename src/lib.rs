@@ -11,12 +11,17 @@ use crate::errors::*;
 use crate::hpke::*;
 
 /// Construct a reasonable default HPKEConfig
-#[pyfunction]
-pub(crate) fn default_config() -> PyHpke {
-    let mode = PyMode::BASE;
-    let kem = PyKemAlgorithm::DHKEM_X25519;
-    let kdf = PyKdfAlgorithm::HKDF_SHA256;
-    let aead = PyAeadAlgorithm::CHACHA20_POLY1305;
+#[pyfunction(mode = "None", kem = "None", kdf = "None", aead = "None")]
+pub(crate) fn default(
+    mode: Option<PyMode>,
+    kem: Option<PyKemAlgorithm>,
+    kdf: Option<PyKdfAlgorithm>,
+    aead: Option<PyAeadAlgorithm>,
+) -> PyHpke {
+    let mode = mode.unwrap_or(PyMode::BASE);
+    let kem = kem.unwrap_or(PyKemAlgorithm::DHKEM_X25519);
+    let kdf = kdf.unwrap_or(PyKdfAlgorithm::HKDF_SHA256);
+    let aead = aead.unwrap_or(PyAeadAlgorithm::CHACHA20_POLY1305);
     PyHpke::new(mode, kem, kdf, aead)
 }
 
@@ -51,6 +56,6 @@ fn hybrid_pke(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyKemAlgorithm>()?;
     m.add_class::<PyKdfAlgorithm>()?;
     m.add_class::<PyAeadAlgorithm>()?;
-    m.add_function(wrap_pyfunction!(default_config, m)?)?;
+    m.add_function(wrap_pyfunction!(default, m)?)?;
     Ok(())
 }

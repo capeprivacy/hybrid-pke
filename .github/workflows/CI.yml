@@ -21,10 +21,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
-    - name: Lint Rust code
+    - name: Lint code
       run: |
-        cargo fmt --all -- --check
-        cargo clippy --all-targets -- -D warnings --no-deps
+        make pydep
+        make lint
     - name: Build wheel
       uses: messense/maturin-action@v1
       with:
@@ -37,9 +37,7 @@ jobs:
         pip install hybrid_pke --no-index --find-links dist --force-reinstall
         python -c "import hybrid_pke"
     - name: Test wheel
-      run: |
-        pip install pytest absl-py
-        pytest .
+      run: make test
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -77,8 +75,8 @@ jobs:
         python -c "import hybrid_pke"
     - name: Test wheel
       run: |
-        pip install pytest absl-py
-        pytest
+        make pydep
+        make test
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -116,8 +114,8 @@ jobs:
         python -c "import hybrid_pke"
     - name: Test wheel
       run: |
-        pip install pytest absl-py
-        pytest
+        make pydep
+        make test
     - name: Build wheel - universal2
       uses: messense/maturin-action@v1
       with:

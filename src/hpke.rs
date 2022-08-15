@@ -1,8 +1,9 @@
 use hpke_rs::HpkePrivateKey;
 use hpke_rs::{Hpke as HpkeRs, HpkePublicKey};
 use hpke_rs_rust_crypto::HpkeRustCrypto;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::types::PyBytes;
+use pyo3::types::{PyAny, PyBytes};
 
 use crate::config::*;
 use crate::context::PyContext;
@@ -16,14 +17,15 @@ pub(crate) type Hpke = HpkeRs<HpkeRustCrypto>;
 #[pyo3(name = "Hpke", module = "hybrid_pke")]
 #[derive(Clone)]
 pub(crate) struct PyHpke {
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     mode: PyMode,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     kem: PyKemAlgorithm,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     kdf: PyKdfAlgorithm,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     aead: PyAeadAlgorithm,
+    hpke: Hpke,
 }
 
 #[pymethods]
@@ -35,12 +37,18 @@ impl PyHpke {
         kdf: PyKdfAlgorithm,
         aead: PyAeadAlgorithm,
     ) -> Self {
+        let hpke = Hpke::new((&mode).into(), (&kem).into(), (&kdf).into(), (&aead).into());
         PyHpke {
             mode,
             kem,
             kdf,
             aead,
+            hpke,
         }
+    }
+
+    pub fn __deepcopy__(&self, _memo: &PyAny) -> Self {
+        self.clone()
     }
 
     /// Set up an HPKE sender context
@@ -54,7 +62,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, PyContext)> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -87,7 +95,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         pk_s: Option<&PyBytes>,
     ) -> PyResult<PyContext> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert args, drop py refs
         let enc = enc.as_bytes();
@@ -123,7 +131,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -167,7 +175,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         pk_s: Option<&PyBytes>,
     ) -> PyResult<&'p PyBytes> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert args, drop py refs
         let enc = enc.as_bytes();
@@ -207,7 +215,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -255,7 +263,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         pk_s: Option<&PyBytes>,
     ) -> PyResult<&'p PyBytes> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
 
         // convert all args and drop py refs immediately
         let enc = enc.as_bytes();
@@ -297,18 +305,31 @@ impl PyHpke {
     }
 
     /// Create an encryption context from a shared secret
+    #[args(psk = "None", psk_id = "None")]
     fn key_schedule(
         &self,
         shared_secret: &PyBytes,
         info: &PyBytes,
-        psk: &PyBytes,
-        psk_id: &PyBytes,
+        psk: Option<&PyBytes>,
+        psk_id: Option<&PyBytes>,
     ) -> PyResult<PyContext> {
-        let cfg: Hpke = self.into();
+        let no_psk = psk.is_none() & psk_id.is_none();
+        let both_psk = psk.is_some() & psk_id.is_some();
+        if !(no_psk | both_psk) {
+            return Err(PyValueError::new_err(
+                format!(
+                    "`psk` and `psk_id` must appear together or not at all. Found: psk={psk:?} and psk_id={psk_id:?}.",
+                    psk=psk,
+                    psk_id=psk_id,
+                )
+            ));
+        }
+
+        let cfg = &self.hpke;
         let shared_secret = shared_secret.as_bytes();
         let info = info.as_bytes();
-        let psk = psk.as_bytes();
-        let psk_id = psk_id.as_bytes();
+        let psk: &[u8] = psk.map_or(&[], |x| x.as_bytes());
+        let psk_id: &[u8] = psk_id.map_or(&[], |x| x.as_bytes());
         let context = cfg
             .key_schedule(shared_secret, info, psk, psk_id)
             .map_err(handle_hpke_error)?;
@@ -317,7 +338,7 @@ impl PyHpke {
 
     /// Generate a key-pair according to the KemAlgorithm in this Hpke config
     fn generate_key_pair<'p>(&self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
         let keypair = cfg.generate_key_pair().map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();
         let sk_py = PyBytes::new(py, sk.as_slice());
@@ -331,7 +352,7 @@ impl PyHpke {
         py: Python<'p>,
         ikm: &PyBytes,
     ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg: Hpke = self.into();
+        let cfg = &self.hpke;
         let ikm = ikm.as_bytes();
         let keypair = cfg.derive_key_pair(ikm).map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();

@@ -16,4 +16,4 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Security :: Cryptography",
 ]
-urls = {repository = "https://github.com/capeprivacy/py-hpke-spec"}
+urls = {repository = "https://github.com/capeprivacy/hybrid-pke"}

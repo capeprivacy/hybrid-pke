@@ -28,7 +28,9 @@ fmt:
 .PHONY: lint
 lint:
 	cargo fmt --all -- --check
-	cargo clippy --all-targets -- -D warnings --no-deps
+	# temporarily allow borrow-deref-ref until this issue is resolved:
+	# https://github.com/rust-lang/rust-clippy/issues/8971
+	cargo clippy --all-targets -- -D warnings --no-deps -A clippy::borrow-deref-ref
 	flake8 .
 
 .PHONY: clean

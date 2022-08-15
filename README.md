@@ -47,22 +47,23 @@ print(plaintext.decode("utf-8"))
 
 The Sender Context and Receiver Context APIs allow for setting up a context for repeated encryptions and decryptions. It's recommended whenever you intend to perform several encryptions or decryptions in quick succession.
 ```python
-# ============== Sender ==============
-
 info = b"quotes from your favorite aphorists"
-messages = [
-    b"Two wrongs don't make a right, but they make a good excuse.",
-    b"Become who you are!",
-    b"Only those who aren't hungry are able to judge the quality of a meal.",
-    b"Under certain circumstances a wanted poster is a letter of recommendation.",
-    b"Nobody ever forgets where he buried the hatchet.",
-]
 aads = [
   b"Szasz",
   b"Nietzsche",
   b"Morandotti",
   b"Brudzinski",
   b"Hubbard",
+]
+
+# ============== Sender ==============
+
+messages = [
+    b"Two wrongs don't make a right, but they make a good excuse.",
+    b"Become who you are!",
+    b"Only those who aren't hungry are able to judge the quality of a meal.",
+    b"Under certain circumstances a wanted poster is a letter of recommendation.",
+    b"Nobody ever forgets where he buried the hatchet.",
 ]
 encap, sender_context = hpke.setup_sender(public_key_r, info)
 

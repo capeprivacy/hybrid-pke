@@ -5,5 +5,5 @@ flake8-black
 flake8-isort
 isort
 maturin
-pytest
+pytest>=7.2
 pytest-xdist

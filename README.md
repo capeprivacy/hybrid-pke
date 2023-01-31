@@ -220,6 +220,38 @@ For users of `cmake`, we provide a [`Makefile`](https://github.com/capeprivacy/h
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Releasing
+
+We use [`cargo-release`](https://github.com/crate-ci/cargo-release) to manage release commits and git tags. Our versioning follows SemVer, and after every release we immediately bump to a prerelease version with the `-dev0` suffix.
+
+<details><summary>Example release flow</summary>
+
+```console
+$ git checkout main
+$ cargo release patch --execute
+Upgrading hybrid_pke from X.X.X-dev0 to X.X.X
+   Replacing in pyproject.toml
+--- pyproject.toml      original
++++ pyproject.toml      replaced
+@@ -8 +8 @@
+-version = "X.X.X-dev0"  # NOTE: auto-updated during release
++version = "X.X.X"  # NOTE: auto-updated during release
+$ cargo release X.X.Y-dev0 --no-tag
+Upgrading hybrid_pke from X.X.X to X.X.Y-dev0
+   Replacing in pyproject.toml
+--- pyproject.toml      original
++++ pyproject.toml      replaced
+@@ -8 +8 @@
+-version = "X.X.X"  # NOTE: auto-updated during release
++version = "X.X.Y-dev0"  # NOTE: auto-updated during release
+$ git push origin main
+$ git push origin vX.X.X  # triggers automatic release steps in CI
+```
+
+</details>
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Related Projects
 - [hpke-py](https://github.com/ctz/hpke-py): An implementation of HPKE based on primitives from [cryptography.io](https://cryptography.io).
 

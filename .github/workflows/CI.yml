@@ -12,7 +12,7 @@ jobs:
   linux:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -53,7 +53,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        target: [x64, x86]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -62,7 +63,7 @@ jobs:
       id: py3
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: x86
+        architecture: ${{ matrix.target }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -73,7 +74,7 @@ jobs:
       uses: messense/maturin-action@v1
       with:
         command: build
-        target: x86
+        target: ${{ matrix.target }}
         args: --release -i ${{ steps.py3.outputs.python-path }} -o dist
     - name: Install wheel
       run: |
@@ -92,7 +93,7 @@ jobs:
   macos:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3

@@ -317,11 +317,7 @@ impl PyHpke {
         let both_psk = psk.is_some() & psk_id.is_some();
         if !(no_psk | both_psk) {
             return Err(PyValueError::new_err(
-                format!(
-                    "`psk` and `psk_id` must appear together or not at all. Found: psk={psk:?} and psk_id={psk_id:?}.",
-                    psk=psk,
-                    psk_id=psk_id,
-                )
+                format!("`psk` and `psk_id` must appear together or not at all. Found: psk={psk:?} and psk_id={psk_id:?}.")
             ));
         }
 

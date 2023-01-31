@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "hybrid_pke"
 description = "The Hybrid Public Key Encryption (HPKE) standard in Python"
-version = "1.0.1"  # NOTE: auto-updated during release
+version = "1.0.2-dev0"  # NOTE: auto-updated during release
 requires-python = ">=3.8"
 readme = "README.md"
 license = { file = "LICENSE" }

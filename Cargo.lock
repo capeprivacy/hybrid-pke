@@ -386,7 +386,7 @@ dependencies = [
 
 [[package]]
 name = "hybrid_pke"
-version = "1.0.1"
+version = "1.0.2-dev0"
 dependencies = [
  "hpke-rs",
  "hpke-rs-crypto",

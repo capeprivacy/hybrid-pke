@@ -13,5 +13,5 @@ crate-type = ["cdylib"]
 hpke-rs = { version = "0.2", features = ["hazmat"] }
 hpke-rs-crypto = { version = "0.2" }
 hpke-rs-rust-crypto = { version = "0.2" }
-pyo3 = { version = "0.17", features = ["extension-module"] }
+pyo3 = { version = "0.21", features = ["extension-module"] }
 rand = { version =  "0.8" }

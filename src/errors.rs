@@ -58,12 +58,6 @@ create_exception!(
     PyException,
     "Unable to collect enough randomness."
 );
-create_exception!(
-    errors,
-    LockPoisoned,
-    PyException,
-    "A concurrency issue with an RwLock."
-);
 
 #[inline(always)]
 pub(crate) fn handle_hpke_error(e: HpkeError) -> PyErr {

@@ -47,21 +47,21 @@ impl PyHpke {
         }
     }
 
-    pub fn __deepcopy__(&self, _memo: &PyAny) -> Self {
+    pub fn __deepcopy__(&self, _memo: Py<PyAny>) -> Self {
         self.clone()
     }
 
     /// Set up an HPKE sender context
-    #[args(psk = "None", psk_id = "None", sk_s = "None")]
+    #[pyo3(signature = ( pk_r, info, psk = None, psk_id = None, sk_s = None))]
     fn setup_sender<'p>(
         &mut self,
         py: Python<'p>,
-        pk_r: &PyBytes,
-        info: &PyBytes,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        sk_s: Option<&PyBytes>,
-    ) -> PyResult<(&'p PyBytes, PyContext)> {
+        pk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        sk_s: Option<&Bound<'p, PyBytes>>,
+    ) -> PyResult<(Bound<'p, PyBytes>, PyContext)> {
         let cfg = &mut self.hpke;
 
         // convert args, drop py refs
@@ -79,21 +79,21 @@ impl PyHpke {
             }
         }
         .map_err(handle_hpke_error)?;
-        let encap_py = PyBytes::new(py, encap.as_slice());
+        let encap_py = PyBytes::new_bound(py, encap.as_slice());
         let context_py = PyContext::new(context);
         Ok((encap_py, context_py))
     }
 
     /// Set up an HPKE receiver context
-    #[args(psk = "None", psk_id = "None", pk_s = "None")]
-    fn setup_receiver(
+    #[pyo3(signature = (enc, sk_r, info, psk = None, psk_id = None, pk_s = None))]
+    fn setup_receiver<'p>(
         &self,
-        enc: &PyBytes,
-        sk_r: &PyBytes,
-        info: &PyBytes,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        pk_s: Option<&PyBytes>,
+        enc: &Bound<'p, PyBytes>,
+        sk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        psk: Option<&Bound<'p, PyBytes>,>,
+        psk_id: Option<&Bound<'p, PyBytes>,>,
+        pk_s: Option<&Bound<'p, PyBytes>,>,
     ) -> PyResult<PyContext> {
         let cfg = &self.hpke;
 
@@ -119,18 +119,18 @@ impl PyHpke {
 
     /// Encrypt input, single-shot
     #[allow(clippy::too_many_arguments)]
-    #[args(psk = "None", psk_id = "None", sk_s = "None")]
+    #[pyo3(signature = (pk_r, info, aad, plain_txt, psk = None, psk_id = None, sk_s = None))]
     fn seal<'p>(
         &mut self,
         py: Python<'p>,
-        pk_r: &PyBytes,
-        info: &PyBytes,
-        aad: &PyBytes,
-        plain_txt: &PyBytes,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        sk_s: Option<&PyBytes>,
-    ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
+        pk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        aad: &Bound<'p, PyBytes>,
+        plain_txt: &Bound<'p, PyBytes>,
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        sk_s: Option<&Bound<'p, PyBytes>>,
+    ) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
         let cfg = &mut self.hpke;
 
         // convert args, drop py refs
@@ -155,26 +155,26 @@ impl PyHpke {
         .map_err(handle_hpke_error)?;
 
         // convert return vals back to PyBytes
-        let encap_py = PyBytes::new(py, encap.as_slice());
-        let cipher_txt_py = PyBytes::new(py, cipher_txt.as_slice());
+        let encap_py = PyBytes::new_bound(py, encap.as_slice());
+        let cipher_txt_py = PyBytes::new_bound(py, cipher_txt.as_slice());
         Ok((encap_py, cipher_txt_py))
     }
 
     /// Decrypt input, single-shot
     #[allow(clippy::too_many_arguments)]
-    #[args(psk = "None", psk_id = "None", pk_s = "None")]
+    #[pyo3(signature = (enc, sk_r, info, aad, cipher_txt, psk = None, psk_id = None, pk_s = None))]
     fn open<'p>(
         &self,
         py: Python<'p>,
-        enc: &PyBytes,
-        sk_r: &PyBytes,
-        info: &PyBytes,
-        aad: &PyBytes,
-        cipher_txt: &PyBytes,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        pk_s: Option<&PyBytes>,
-    ) -> PyResult<&'p PyBytes> {
+        enc: &Bound<'p, PyBytes>,
+        sk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        aad: &Bound<'p, PyBytes>,
+        cipher_txt: &Bound<'p, PyBytes>,
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        pk_s: Option<&Bound<'p, PyBytes>>,
+    ) -> PyResult<Bound<'p, PyBytes>> {
         let cfg = &self.hpke;
 
         // convert args, drop py refs
@@ -198,23 +198,23 @@ impl PyHpke {
         .map_err(handle_hpke_error)?;
 
         // convert return val back to PyBytes
-        Ok(PyBytes::new(py, plain_txt.as_slice()))
+        Ok(PyBytes::new_bound(py, plain_txt.as_slice()))
     }
 
     /// Derive an exporter secret for sender with public key `pk_r`, single-shot
     #[allow(clippy::too_many_arguments)]
-    #[args(psk = "None", psk_id = "None", sk_s = "None")]
+    #[pyo3(signature=(pk_r, info, exporter_context, length, psk = None, psk_id = None, sk_s = None))]
     fn send_export<'p>(
         &mut self,
         py: Python<'p>,
-        pk_r: &PyBytes,
-        info: &PyBytes,
-        exporter_context: &PyBytes,
+        pk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        exporter_context: &Bound<'p, PyBytes>,
         length: usize,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        sk_s: Option<&PyBytes>,
-    ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        sk_s: Option<&Bound<'p, PyBytes>>,
+    ) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
         let cfg = &mut self.hpke;
 
         // convert args, drop py refs
@@ -243,26 +243,26 @@ impl PyHpke {
         .map_err(handle_hpke_error)?;
 
         // convert return vals back to PyBytes
-        let encap_py = PyBytes::new(py, encap.as_slice());
-        let exporter_secret_py = PyBytes::new(py, exporter_secret.as_slice());
+        let encap_py = PyBytes::new_bound(py, encap.as_slice());
+        let exporter_secret_py = PyBytes::new_bound(py, exporter_secret.as_slice());
         Ok((encap_py, exporter_secret_py))
     }
 
     /// Derive an exporter secret for receiver with private key `sk_r`, single-shot
     #[allow(clippy::too_many_arguments)]
-    #[args(psk = "None", psk_id = "None", pk_s = "None")]
+    #[pyo3(signature = (enc, sk_r, info, exporter_context, length, psk = None, psk_id = None, pk_s = None))]
     fn receiver_export<'p>(
         &self,
         py: Python<'p>,
-        enc: &PyBytes,
-        sk_r: &PyBytes,
-        info: &PyBytes,
-        exporter_context: &PyBytes,
+        enc: &Bound<'p, PyBytes>,
+        sk_r: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        exporter_context: &Bound<'p, PyBytes>,
         length: usize,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
-        pk_s: Option<&PyBytes>,
-    ) -> PyResult<&'p PyBytes> {
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        pk_s: Option<&Bound<'p, PyBytes>>,
+    ) -> PyResult<Bound<'p, PyBytes>> {
         let cfg = &self.hpke;
 
         // convert all args and drop py refs immediately
@@ -301,17 +301,17 @@ impl PyHpke {
         }
         .map_err(handle_hpke_error)?;
 
-        Ok(PyBytes::new(py, exporter_secret.as_slice()))
+        Ok(PyBytes::new_bound(py, exporter_secret.as_slice()))
     }
 
     /// Create an encryption context from a shared secret
-    #[args(psk = "None", psk_id = "None")]
-    fn key_schedule(
+    #[pyo3(signature = (shared_secret, info, psk = None, psk_id = None))]
+    fn key_schedule<'p>(
         &self,
-        shared_secret: &PyBytes,
-        info: &PyBytes,
-        psk: Option<&PyBytes>,
-        psk_id: Option<&PyBytes>,
+        shared_secret: &Bound<'p, PyBytes>,
+        info: &Bound<'p, PyBytes>,
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
     ) -> PyResult<PyContext> {
         let no_psk = psk.is_none() & psk_id.is_none();
         let both_psk = psk.is_some() & psk_id.is_some();
@@ -333,12 +333,12 @@ impl PyHpke {
     }
 
     /// Generate a key-pair according to the KemAlgorithm in this Hpke config
-    fn generate_key_pair<'p>(&mut self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
+    fn generate_key_pair<'p>(&mut self, py: Python<'p>) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
         let cfg = &mut self.hpke;
         let keypair = cfg.generate_key_pair().map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();
-        let sk_py = PyBytes::new(py, sk.as_slice());
-        let pk_py = PyBytes::new(py, pk.as_slice());
+        let sk_py = PyBytes::new_bound(py, sk.as_slice());
+        let pk_py = PyBytes::new_bound(py, pk.as_slice());
         Ok((sk_py, pk_py))
     }
 
@@ -346,14 +346,14 @@ impl PyHpke {
     fn derive_key_pair<'p>(
         &self,
         py: Python<'p>,
-        ikm: &PyBytes,
-    ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
+        ikm: &Bound<'p, PyBytes>,
+    ) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
         let cfg = &self.hpke;
         let ikm = ikm.as_bytes();
         let keypair = cfg.derive_key_pair(ikm).map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();
-        let sk_py = PyBytes::new(py, sk.as_slice());
-        let pk_py = PyBytes::new(py, pk.as_slice());
+        let sk_py = PyBytes::new_bound(py, sk.as_slice());
+        let pk_py = PyBytes::new_bound(py, pk.as_slice());
         Ok((sk_py, pk_py))
     }
 }

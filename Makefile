@@ -23,13 +23,13 @@ test:
 fmt:
 	cargo fmt
 	isort .
-	black .
+	ruff format .
 
 .PHONY: lint
 lint:
 	cargo fmt --all -- --check
 	cargo clippy --all-targets -- -D warnings --no-deps
-	flake8 .
+	ruff .
 
 .PHONY: clean
 clean:

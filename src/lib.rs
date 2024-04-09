@@ -37,7 +37,10 @@ fn build_errors_module(py: Python) -> PyResult<Bound<PyModule>> {
     errors_module.add("UnnecessaryPsk", py.get_type_bound::<UnnecessaryPsk>())?;
     errors_module.add("InsecurePsk", py.get_type_bound::<InsecurePsk>())?;
     errors_module.add("CryptoError", py.get_type_bound::<CryptoError>())?;
-    errors_module.add("MessageLimitReached", py.get_type_bound::<MessageLimitReached>())?;
+    errors_module.add(
+        "MessageLimitReached",
+        py.get_type_bound::<MessageLimitReached>(),
+    )?;
     errors_module.add(
         "InsufficientRandomness",
         py.get_type_bound::<InsufficientRandomness>(),

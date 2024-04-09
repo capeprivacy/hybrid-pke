@@ -91,9 +91,9 @@ impl PyHpke {
         enc: &Bound<'p, PyBytes>,
         sk_r: &Bound<'p, PyBytes>,
         info: &Bound<'p, PyBytes>,
-        psk: Option<&Bound<'p, PyBytes>,>,
-        psk_id: Option<&Bound<'p, PyBytes>,>,
-        pk_s: Option<&Bound<'p, PyBytes>,>,
+        psk: Option<&Bound<'p, PyBytes>>,
+        psk_id: Option<&Bound<'p, PyBytes>>,
+        pk_s: Option<&Bound<'p, PyBytes>>,
     ) -> PyResult<PyContext> {
         let cfg = &self.hpke;
 
@@ -333,7 +333,10 @@ impl PyHpke {
     }
 
     /// Generate a key-pair according to the KemAlgorithm in this Hpke config
-    fn generate_key_pair<'p>(&mut self, py: Python<'p>) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
+    fn generate_key_pair<'p>(
+        &mut self,
+        py: Python<'p>,
+    ) -> PyResult<(Bound<'p, PyBytes>, Bound<'p, PyBytes>)> {
         let cfg = &mut self.hpke;
         let keypair = cfg.generate_key_pair().map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();

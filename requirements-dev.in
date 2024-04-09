@@ -1,8 +1,5 @@
 absl-py
-black
-flake8
-flake8-black
-flake8-isort
+ruff
 isort
 maturin
 pytest>=7.2

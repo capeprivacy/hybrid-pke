@@ -89,6 +89,5 @@ pub(crate) fn handle_hpke_error(e: HpkeError) -> PyErr {
         HpkeError::InsufficientRandomness => {
             InsufficientRandomness::new_err("Unable to collect enough randomness.")
         }
-        HpkeError::LockPoisoned => LockPoisoned::new_err("A concurrency issue with an RwLock."),
     }
 }

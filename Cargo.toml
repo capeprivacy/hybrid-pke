@@ -10,8 +10,8 @@ name = "hybrid_pke"
 crate-type = ["cdylib"]
 
 [dependencies]
-hpke-rs = { version = "0.1.0", features = ["hazmat"] }
-hpke-rs-crypto = { version = "0.1.1" }
-hpke-rs-rust-crypto = { version = "0.1.1" }
+hpke-rs = { version = "0.2", features = ["hazmat"] }
+hpke-rs-crypto = { version = "0.2" }
+hpke-rs-rust-crypto = { version = "0.2" }
 pyo3 = { version = "0.17", features = ["extension-module"] }
 rand = { version =  "0.8" }

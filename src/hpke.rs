@@ -54,7 +54,7 @@ impl PyHpke {
     /// Set up an HPKE sender context
     #[args(psk = "None", psk_id = "None", sk_s = "None")]
     fn setup_sender<'p>(
-        &self,
+        &mut self,
         py: Python<'p>,
         pk_r: &PyBytes,
         info: &PyBytes,
@@ -62,7 +62,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, PyContext)> {
-        let cfg = &self.hpke;
+        let cfg = &mut self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -121,7 +121,7 @@ impl PyHpke {
     #[allow(clippy::too_many_arguments)]
     #[args(psk = "None", psk_id = "None", sk_s = "None")]
     fn seal<'p>(
-        &self,
+        &mut self,
         py: Python<'p>,
         pk_r: &PyBytes,
         info: &PyBytes,
@@ -131,7 +131,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg = &self.hpke;
+        let cfg = &mut self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -205,7 +205,7 @@ impl PyHpke {
     #[allow(clippy::too_many_arguments)]
     #[args(psk = "None", psk_id = "None", sk_s = "None")]
     fn send_export<'p>(
-        &self,
+        &mut self,
         py: Python<'p>,
         pk_r: &PyBytes,
         info: &PyBytes,
@@ -215,7 +215,7 @@ impl PyHpke {
         psk_id: Option<&PyBytes>,
         sk_s: Option<&PyBytes>,
     ) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg = &self.hpke;
+        let cfg = &mut self.hpke;
 
         // convert args, drop py refs
         let pk_r = HpkePublicKey::new(pk_r.as_bytes().into());
@@ -333,8 +333,8 @@ impl PyHpke {
     }
 
     /// Generate a key-pair according to the KemAlgorithm in this Hpke config
-    fn generate_key_pair<'p>(&self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
-        let cfg = &self.hpke;
+    fn generate_key_pair<'p>(&mut self, py: Python<'p>) -> PyResult<(&'p PyBytes, &'p PyBytes)> {
+        let cfg = &mut self.hpke;
         let keypair = cfg.generate_key_pair().map_err(handle_hpke_error)?;
         let (sk, pk) = keypair.into_keys();
         let sk_py = PyBytes::new(py, sk.as_slice());

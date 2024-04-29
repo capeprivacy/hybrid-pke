@@ -1,6 +1,6 @@
 [package]
 name = "hybrid_pke"
-version = "1.0.2"
+version = "1.0.3-dev0"
 edition = "2021"
 publish = false
 

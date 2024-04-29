@@ -137,28 +137,12 @@ jobs:
       with:
         name: wheels
         path: dist
-  
-  update_release_draft:
-    permissions:
-      contents: write
-      pull-requests: read
-    runs-on: ubuntu-latest
-    steps:
-    - name: Release drafter
-      id: release_drafter
-      uses: release-drafter/release-drafter@v5
-      with:
-        disable-autolabeler: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      upload_url: ${{ steps.release_drafter.outputs.upload_url }}
 
   release:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ linux, macos, windows, update_release_draft ]
+    needs: [ linux, macos, windows ]
     steps:
       - uses: actions/download-artifact@v2
         id: download
@@ -167,16 +151,15 @@ jobs:
       - name: Zip wheels into wheelhouse
         run: zip -r wheelhouse.zip . -i *.whl
         working-directory: ${{ steps.download.outputs.download-path }}
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ needs.update_release_draft.outputs.upload_url }}
-          asset_path: wheelhouse.zip
-          asset_name: wheelhouse.zip
-          asset_content_type: application/zip
+          generate_release_notes: true
+          files: |
+            wheelhouse.zip
+            LICENSE
+            NOTICE
+            README.md
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
